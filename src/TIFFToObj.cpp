@@ -77,15 +77,9 @@ void write_tile(int tx, int ty, TIFF *tif)
     	TIFFReadEncodedStrip(tif, y + y_off, buf, -1);
     	for (int x = 0; x < strip_size / sizeof(short); x++) {
     		vec3 v;
-    		//double lat = y;
-    		//double lon = x;
-    		//GTIFImageToPCS(gtif, &lon, &lat);
-    		//v.x = lon;
-    		//v.x = lat;
      		v.x = (x + x_off) / 10.0;
-    		v.y = (TIFFNumberOfStrips(tif) - (y + y_off)) / 10.0;
-    		//v.y = ((nstrips - y) + y_off) / 10.0;
-    		v.z = buf[x + x_off] / 300.0;
+    		v.z = (TIFFNumberOfStrips(tif) - (y + y_off)) / 10.0;
+    		v.y = buf[x + x_off] / 100.0;
     		vertices.push_back(v);
     		vector<int> vn;
     		vert_to_triangles.push_back(vn);
@@ -134,10 +128,11 @@ void write_tile(int tx, int ty, TIFF *tif)
 	cout << "Calculating Normals" << flush;
     for (auto V = vert_to_triangles.begin(); V != vert_to_triangles.end(); ++V) {
     	vec3 n;
+    	vec3 n1(-1,-1,-1);
     	for (auto VV = V->begin(); VV != V->end(); ++VV) {
 
     		tri t = triangles[*VV];
-    		n += cross(vertices[t.v[0]] - vertices[t.v[1]], vertices[t.v[0]] - vertices[t.v[2]]);
+    		n +=  (n1 * cross(vertices[t.v[0]] - vertices[t.v[1]], vertices[t.v[0]] - vertices[t.v[2]]));
 
     	}
     	normals.push_back(normalize(n));
